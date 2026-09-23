@@ -1,0 +1,2 @@
+ALTER TABLE "agent_autonomy" DROP CONSTRAINT "agent_autonomy_mode_ck";--> statement-breakpoint
+ALTER TABLE "agent_autonomy" ADD CONSTRAINT "agent_autonomy_mode_ck" CHECK ("agent_autonomy"."mode" in ('do','ask','never'));

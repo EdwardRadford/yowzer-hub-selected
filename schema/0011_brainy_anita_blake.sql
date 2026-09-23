@@ -1,0 +1,2 @@
+ALTER TABLE "tenant_config" ADD COLUMN "plan" text DEFAULT 'standard' NOT NULL;--> statement-breakpoint
+ALTER TABLE "tenant_config" ADD CONSTRAINT "tenant_config_plan_ck" CHECK ("tenant_config"."plan" in ('founding','standard'));
