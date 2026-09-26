@@ -11,6 +11,11 @@ under, the tool registry the model chooses from, and the database schema.
 
 It will not build. It is here to be read.
 
+Start with `src/ask/tools.ts`: 2,218 lines, 389 of them comments, and the comments are
+the point — they are where the reasoning behind each of the sixty-one tools is written
+down, including why forty-two of them can only read and why the owner's own controls
+deliberately sit outside the ledger the rest go through.
+
 ## What is in here
 
 | Path | What it is |

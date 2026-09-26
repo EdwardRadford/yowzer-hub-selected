@@ -1,11 +1,10 @@
 // ask/tools.ts — THE TOOL SURFACE. Everything the Hub can see and everything
 // the Hub can do, as one registry the model chooses from.
 //
-// Ed, verbatim: "the chat feature has to be outstanding. dont lock it down too
-// much - it needs to be quick and accurate." DESIGN/SYSTEM.md: "Ask… has every
-// tool the Hub has — every read model and every mutation in packages/data —
-// with writes routed through the operator's ledger so they are logged,
-// undoable, and honour the dial, the rails and Pause. No topic fences."
+// The requirement this file answers: Ask has to be outstanding, and it must not be
+// locked down. It gets every tool the Hub has — every read model and every mutation
+// — with writes routed through the operator's ledger so they are logged, undoable,
+// and honour the dial, the rails and Pause. No topic fences.
 //
 // So there are no topic fences in here. There is no allow-list of questions, no
 // intent router deciding what Ask is permitted to look at, and no accessor held
@@ -507,10 +506,10 @@ const READ_TOOLS: readonly AskReadTool[] = [
   // ─── THE SEVEN THAT WERE BUILT BUT UNASKABLE (2026-09-03) ───────────────
   //
   // Every one of these is a read model somebody built, tested and shipped,
-  // and that Ask had no way to call — so "how many hours went on the Bell
-  // Inn?" got a shrug from an employee that had the answer in a table.
-  // DESIGN/SYSTEM.md's rule 10 is "the Hub can do anything it can possibly
-  // do"; these seven were the gap between that sentence and the truth.
+  // and that Ask had no way to call — so "how many hours went on that job?"
+  // got a shrug from an employee whose answer was sitting in a table. The rule
+  // is that the Hub can do anything it can possibly do; these seven were the
+  // gap between that sentence and the truth.
   {
     name: 'search_memory',
     description:
@@ -741,7 +740,7 @@ const READ_TOOLS: readonly AskReadTool[] = [
   {
     name: 'find_customer',
     description:
-      'Find a customer by name (fuzzy — "belle in" finds The Bell Inn) or by phone number — returns the customerId every other customer tool needs, but NOT their record. If you want their record (what they owe, their jobs, contact details), call `customer_by_name` instead and get both in one call; use find_customer on its own when you only need the id for something else (book_fitting, create_job, chase_customer) or the name might be ambiguous. PREFERS a real customer (a Dropbox folder or something created in the Hub) — a Xero-only contact is still returned, never hidden, but tagged `isCanonical: false` and flagged in `note`. Not money-gated.',
+      'Find a customer by name (fuzzy — "medow lane" finds Meadow Lane Garage) or by phone number — returns the customerId every other customer tool needs, but NOT their record. If you want their record (what they owe, their jobs, contact details), call `customer_by_name` instead and get both in one call; use find_customer on its own when you only need the id for something else (book_fitting, create_job, chase_customer) or the name might be ambiguous. PREFERS a real customer (a Dropbox folder or something created in the Hub) — a Xero-only contact is still returned, never hidden, but tagged `isCanonical: false` and flagged in `note`. Not money-gated.',
     input_schema: schema({ query: { type: 'string', description: 'A name, part of a name, or a phone number.' } }, ['query']),
     kind: 'read',
     moneyGated: false,
@@ -749,8 +748,8 @@ const READ_TOOLS: readonly AskReadTool[] = [
       const query = requireString(input, 'query', 'find_customer');
       const byName = await searchCustomersByName(c.ctx, query);
       if (byName.length > 0) {
-        // searchCustomersByName already ranks canonical matches first (Ed's
-        // canon: "the only customers should be Dropbox folders") — this note
+        // searchCustomersByName already ranks canonical matches first (the
+        // product rule: a customer is a Dropbox folder) — this note
         // only ever fires when the BEST match is a Xero contact, i.e. no
         // real customer matched at all.
         const note = !byName[0].isCanonical
@@ -1053,7 +1052,7 @@ const READ_TOOLS: readonly AskReadTool[] = [
     input_schema: NO_ARGS,
     kind: 'read',
     moneyGated: false,
-    // Projected: the raw rows carry meta.instance, latency and ids that are Ed's business, not a tenant's (2026-09-10 security review, item 6).
+    // Projected: the raw rows carry meta.instance, latency and internal ids, which are the platform operator's business and not a tenant's (2026-09-10 security review, item 6).
     run: async (c) => (await degradations(c.ctx.tenantId, { now: c.now })).map((d) => ({ checkId: d.checkId, status: d.status, sentence: d.sentence })),
   },
 ];
@@ -1079,7 +1078,7 @@ const LEDGER_WRITE_TOOLS: readonly AskLedgerWriteTool[] = [
       'Create a JOB. Goes through the operator like any other action: your dial decides whether it happens now or waits for you on Decide, and it can be undone. Give it a customerId when you know one.',
     input_schema: schema(
       {
-        title: { type: 'string', description: 'What the job is, as the shop would write it: "shop fascia for The Bell Inn".' },
+        title: { type: 'string', description: 'What the job is, as the shop would write it: "shop fascia for Meadow Lane Garage".' },
         customerId: { type: 'string', description: 'From find_customer. Omit only for a genuinely unknown enquirer.' },
         description: { type: 'string' },
         valueEstimatePounds: { type: 'number', description: 'Ballpark value in POUNDS, only if the person said one.' },
@@ -1893,7 +1892,7 @@ export function askToolDefinitions(): ClaudeToolDefinition[] {
 // THE MEASUREMENT THAT CAUSED THIS. One Ask call sent ~28,000 tokens before
 // the person had finished typing: the system prompt is ~3k of it and the
 // other ~25k is SIXTY-ONE tool definitions, every one of them, on every
-// question, including "what does the Bell Inn owe?". A shop asks a hundred
+// question, including "what does Meadow Lane Garage owe?". A shop asks a hundred
 // questions a week; at Sonnet's input rate that is the whole cost story.
 //
 // SO: the router (route.ts's `familiesFor`) says which FAMILIES a question
@@ -2199,12 +2198,12 @@ export function buildAskToolExecutor(c: AskToolCtx): (name: string, input: Recor
       // amountPence rides along so the £ figure this write JUST grounded (an
       // invoice's real balance, a quote's real total) is visible to
       // collectAskAllowedPence — without it, a write tool's own result carried
-      // only a phrase ("chased Whitmore Haulage") and never a number, so a
-      // follow-up turn that correctly restated the very figure this action had
-      // already verified (e.g. "make it friendlier", still £2,982.08) got that
-      // TRUE figure egress-withheld into "[figure withheld]" mid-draft, because
-      // nothing in THAT turn's own tool calls carried it forward. Found
-      // 2026-09-03 testing a real multi-turn chase conversation.
+      // only a phrase ("chased <customer>") and never a number, so a follow-up
+      // turn that correctly restated the very figure this action had already
+      // verified ("make it friendlier", same balance) got that TRUE figure
+      // egress-withheld into "[figure withheld]" mid-draft, because nothing in
+      // THAT turn's own tool calls carried it forward. Found 2026-09-03 testing
+      // a multi-turn chase conversation end to end.
       return { ok: true, data: { done: described.text, decisionId: described.actionId, status: outcome.action.status, amountPence: action.amountPence } };
     } catch (error) {
       // A REFUSAL IS A SENTENCE, NOT A CRASH. AskToolRefusal is this file's own
