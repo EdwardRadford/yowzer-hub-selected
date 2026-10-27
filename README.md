@@ -24,7 +24,7 @@ deliberately sit outside the ledger the rest go through.
 | `src/operator/types.ts` | The shape of a proposed action and its record in the ledger. |
 | `src/ask/tools.ts` | The tool registry. Sixty-one tools: 42 read, 11 write through the ledger, 8 owner controls. The comments explain why the split is what it is. |
 | `src/ai/types.ts` | Tool definition types passed to the model. |
-| `schema/` | Thirteen migrations. Multi-tenancy and row-level security are visible here. |
+| `schema/` | Thirteen migrations. Multi-tenancy (a `tenant_id` on every table) is visible here; the row-level security policies are applied from separate SQL files in the private repo. |
 
 ## The idea, briefly
 
