@@ -2,8 +2,8 @@
 
 Yowzer Hub is a multi-tenant operations platform I built for a sign manufacturing business. It runs
 their quoting, chasing, booking and follow-up, reads the Xero and Dropbox they already used, and
-escalates to a person only when one is genuinely needed. It is a commercial product, sold at £350 a
-month, and I am the only engineer on it.
+escalates to a person only when one is genuinely needed. It is a commercial product, in staged
+rollout with its first business, and I am the only engineer on it.
 
 The full repository is private because it is a live system holding a real business's customer data.
 This repository is the part worth reading: the contract the autonomous side of the system runs
